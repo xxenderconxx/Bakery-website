@@ -2,11 +2,216 @@ const express = require("express");
 const router = express.Router();
 const connectDB = require("./database");
 const { ObjectId } = require("mongodb");
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
 
 const handleError = (res, err) => {
   console.error(err);
   res.status(500).send({ error: err.message });
 };
+
+// Auth Routes
+router.post("/auth/register", async (req, res) => {
+    try {
+        const db = await connectDB();
+        const { username, password, email, role = "staff" } = req.body;
+
+        const existingUser = await db.collection("Users").findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = {
+            username,
+            password: hashedPassword,
+            email,
+            role,
+            createdAt: new Date()
+        };
+
+        await db.collection("Users").insertOne(newUser);
+        res.status(201).json({ message: "User created successfully" });
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+router.post("/auth/login", async (req, res) => {
+    try {
+        const db = await connectDB();
+        const { username, password } = req.body;
+
+        const user = await db.collection("Users").findOne({ username });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const token = jwt.sign(
+            { userId: user._id, username: user.username, role: user.role },
+            "your-secret-key",
+            { expiresIn: "1h" }
+        );
+
+        res.json({ 
+            token, 
+            role: user.role,
+            username: user.username
+        });
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Middleware
+const authenticate = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, "your-secret-key");
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: "Invalid token" });
+    }
+};
+
+const authorize = (roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: "Unauthorized" });
+        }
+        next();
+    };
+};
+
+// Users Routes (Admin only)
+router.get("/users", authenticate, authorize(["admin"]), async (req, res) => {
+    try {
+        const db = await connectDB();
+        const users = await db.collection("Users").find({}, { projection: { password: 0 } }).toArray();
+        res.json(users);
+    } catch (err) {
+        handleError(res, err);
+    }
+});
+
+// Add new user
+router.post("/users", authenticate, authorize(["admin"]), async (req, res) => {
+  try {
+      const db = await connectDB();
+      const { username, password, email, role } = req.body;
+
+      // Check if user already exists
+      const existingUser = await db.collection("Users").findOne({ username });
+      if (existingUser) {
+          return res.status(400).json({ message: "Username already exists" });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      const newUser = {
+          username,
+          password: hashedPassword,
+          email,
+          role,
+          createdAt: new Date()
+      };
+
+      const result = await db.collection("Users").insertOne(newUser);
+      res.status(201).json({ 
+          _id: result.insertedId,
+          username,
+          email,
+          role
+      });
+  } catch (err) {
+      handleError(res, err);
+  }
+});
+
+// Add this route above your PUT route
+router.get("/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
+  try {
+      const db = await connectDB();
+      const user = await db.collection("Users").findOne(
+          { _id: new ObjectId(req.params.id) },
+          { projection: { password: 0 } } // Exclude password from response
+      );
+      
+      if (!user) {
+          return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json(user);
+  } catch (err) {
+      handleError(res, err);
+  }
+});
+
+// Update user
+router.put("/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
+  try {
+      const db = await connectDB();
+      const { username, password, email, role } = req.body;
+
+      // Validate input
+      if (!username || !email || !role) {
+          return res.status(400).json({ message: "All fields are required" });
+      }
+
+      const updateData = { username, email, role };
+      
+      // Only update password if provided
+      if (password) {
+          updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      const result = await db.collection("Users").updateOne(
+          { _id: new ObjectId(req.params.id) },
+          { $set: updateData }
+      );
+      
+      if (result.matchedCount === 0) {
+          return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Return updated user data (without password)
+      const updatedUser = await db.collection("Users").findOne(
+          { _id: new ObjectId(req.params.id) },
+          { projection: { password: 0 } }
+      );
+      
+      res.json(updatedUser);
+  } catch (err) {
+      handleError(res, err);
+  }
+});
+
+// Delete user
+router.delete("/users/:id", authenticate, authorize(["admin"]), async (req, res) => {
+  try {
+      const db = await connectDB();
+      const result = await db.collection("Users").deleteOne({ _id: new ObjectId(req.params.id) });
+      
+      if (result.deletedCount === 0) {
+          return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ message: "User deleted successfully" });
+  } catch (err) {
+      handleError(res, err);
+  }
+});
 
 // Ingredients Routes
 router.get("/ingredients", async (req, res) => {

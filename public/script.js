@@ -1,6 +1,225 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Check authentication
+    const token = localStorage.getItem("token");
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Display username and role
+    const userRole = localStorage.getItem("userRole");
+    const username = localStorage.getItem("username");
+    document.getElementById("username-display").textContent = `Logged in as ${username} (${userRole})`;
+
+    // Show admin tabs if user is admin
+    if (userRole === "admin") {
+        document.getElementById("users-tab").style.display = "block";
+    }
+
+    // Logout button
+    document.getElementById("logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("username");
+        window.location.href = "login.html";
+    });
+
     const tabButtons = document.querySelectorAll(".sidebar button");
     const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            const targetTab = button.dataset.tab;
+            tabContents.forEach(content => content.classList.remove("active"));
+            document.getElementById(targetTab).classList.add("active");
+
+            if (targetTab === "ingredients") fetchIngredients();
+            if (targetTab === "products") fetchProducts();
+            if (targetTab === "orders") {
+                fetchOrders();
+                populateCustomerDropdown();
+                populateProductDropdown();
+            }
+            if (targetTab === "customers") fetchCustomers();
+            if (targetTab === "purchases") {
+                fetchPurchases();
+                populatePurchaseIngredientDropdown();
+            }
+            if (targetTab === "users") fetchUsers();
+        });
+    });
+
+    // Initialize with Ingredients tab
+    document.querySelector('[data-tab="ingredients"]').click();
+
+
+    async function editUser(id) {
+        try {
+            console.log("Attempting to edit user with ID:", id); // Debug log
+            
+            const response = await fetch(`/api/users/${id}`, {
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            
+            console.log("Response status:", response.status); // Debug log
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("API Error:", errorText); // Debug log
+                throw new Error(errorText || "Failed to fetch user data");
+            }
+            
+            const user = await response.json();
+            console.log("User data received:", user); // Debug log
+            
+            const form = document.getElementById("user-form");
+            form.dataset.mode = "edit";
+            form.dataset.id = id;
+            
+            document.getElementById("user-username").value = user.username || '';
+            document.getElementById("user-email").value = user.email || '';
+            document.getElementById("user-role").value = user.role || 'staff';
+            document.getElementById("user-password").value = ''; // Clear password field
+            
+            form.querySelector("button[type='submit']").textContent = "Update User";
+        } catch (error) {
+            console.error("Edit user error:", error); // Debug log
+            showError("Failed to load user", error);
+        }
+    }
+
+async function deleteUser(id) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    
+    try {
+        const response = await fetch(`/api/users/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        if (!response.ok) throw new Error(await response.text());
+        fetchUsers();
+    } catch (error) {
+        showError("Failed to delete user", error);
+    }
+}
+
+// Update the user form submission handler
+document.getElementById("user-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const id = form.dataset.id;
+    const isEdit = form.dataset.mode === "edit";
+
+    // Basic validation
+    const username = document.getElementById("user-username").value.trim();
+    const email = document.getElementById("user-email").value.trim();
+    const role = document.getElementById("user-role").value;
+    const password = document.getElementById("user-password").value;
+
+    if (!username || !email || !role) {
+        showError("Validation Error", new Error("All fields except password are required"));
+        return;
+    }
+
+    if (!isEdit && !password) {
+        showError("Validation Error", new Error("Password is required for new users"));
+        return;
+    }
+
+    const userData = {
+        username,
+        email,
+        role
+    };
+
+    // Only include password if it's provided (for updates) or for new users
+    if (password) {
+        userData.password = password;
+    }
+
+    try {
+        const url = isEdit ? `/api/users/${id}` : "/api/users";
+        const method = isEdit ? "PUT" : "POST";
+        
+        const response = await fetch(url, {
+            method,
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify(userData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || `Failed to ${isEdit ? 'update' : 'create'} user`);
+        }
+
+        // Reset form and refresh user list
+        form.reset();
+        delete form.dataset.mode;
+        delete form.dataset.id;
+        form.querySelector("button[type='submit']").textContent = "Add User";
+        fetchUsers();
+        
+        // Show success message
+        alert(`User ${isEdit ? 'updated' : 'created'} successfully!`);
+    } catch (error) {
+        showError(`Failed to ${isEdit ? 'update' : 'save'} user`, error);
+    }
+});
+
+// Add these functions for user management
+async function fetchUsers() {
+    try {
+        const response = await fetch("/api/users", {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
+            }
+        });
+        if (!response.ok) throw new Error(await response.text());
+        const users = await response.json();
+        renderUsersTable(users);
+    } catch (error) {
+        showError("Failed to load users", error);
+    }
+}
+
+function renderUsersTable(users) {
+    const tableBody = document.querySelector("#users-table tbody");
+    tableBody.innerHTML = "";
+    
+    users.forEach(user => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>${user.role}</td>
+            <td>
+                <button class="edit-btn" data-id="${user._id}">Edit</button>
+                <button class="delete-btn" data-id="${user._id}">Delete</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+
+    // Add event listeners
+    document.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            console.log("Edit button clicked with ID:", btn.dataset.id); // Debug log
+            editUser(btn.dataset.id);
+        });
+    });
+    
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", () => deleteUser(btn.dataset.id));
+    });
+}
 
     // Tab switching
     tabButtons.forEach(button => {
@@ -589,7 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
     
-    // Add this to handle adding/removing order items
+    // adding/removing order items
     document.getElementById("add-order-item").addEventListener("click", () => {
         addOrderItemToForm();
     });

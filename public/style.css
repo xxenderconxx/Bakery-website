@@ -242,4 +242,76 @@ table tr:hover {
     .content {
         padding: 15px;
     }
+    /* Existing styles... */
+
+    /* Auth styles */
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f5f5f5;
+    }
+
+    .auth-form {
+        background-color: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .auth-form h2 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+    }
+
+    .auth-form h3 {
+        color: #1abc9c;
+        margin-bottom: 20px;
+    }
+
+    .auth-form p {
+        margin-top: 20px;
+        color: #666;
+    }
+
+    .auth-form a {
+        color: #1abc9c;
+        text-decoration: none;
+    }
+
+    .auth-form a:hover {
+        text-decoration: underline;
+    }
+
+    /* User info in sidebar */
+    .user-info {
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #34495e;
+        color: white;
+        border-radius: 4px;
+    }
+
+    .user-info span {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    #logout-btn {
+        width: 100%;
+        padding: 8px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    #logout-btn:hover {
+        background-color: #c0392b;
+    }
 }
