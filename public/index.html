@@ -10,94 +10,192 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2>Bakery Manager</h2>
             <ul>
                 <li><button data-tab="ingredients">Ingredients</button></li>
                 <li><button data-tab="products">Products</button></li>
                 <li><button data-tab="orders">Orders</button></li>
                 <li><button data-tab="customers">Customers</button></li>
+                <li><button data-tab="purchases">Purchases</button></li>
             </ul>
         </nav>
         <main class="content">
+            <!-- Ingredients Tab -->
             <div id="ingredients" class="tab-content">
-                <h2>Ingredients</h2>
-                <form id="ingredient-form">
-                    <input type="text" id="ingredient-name" placeholder="Ingredient Name" required>
-                    <input type="number" id="ingredient-cost" placeholder="Unit Cost" required>
-                    <input type="number" id="ingredient-quantity" placeholder="Available Quantity" required>
-                    <button type="submit">Add Ingredient</button>
-                </form>
-                <table id="ingredients-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Unit Cost</th>
-                            <th>Available Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h2>Ingredients Management</h2>
+                <div class="form-container">
+                    <form id="ingredient-form">
+                        <h3>Add/Edit Ingredient</h3>
+                        <input type="text" id="ingredient-name" placeholder="Ingredient Name" required>
+                        <input type="number" id="ingredient-cost" placeholder="Unit Cost" step="0.01" required>
+                        <input type="number" id="ingredient-quantity" placeholder="Available Quantity" required>
+                        <select id="ingredient-unit" required>
+                            <option value="">Select Unit</option>
+                            <option value="kg">Kilograms</option>
+                            <option value="g">Grams</option>
+                            <option value="l">Liters</option>
+                            <option value="ml">Milliliters</option>
+                            <option value="pieces">Pieces</option>
+                        </select>
+                        <button type="submit">Add Ingredient</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table id="ingredients-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Unit Cost</th>
+                                <th>Available Quantity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             
+            <!-- Products Tab -->
             <div id="products" class="tab-content">
-                <h2>Products</h2>
-                <form id="product-form">
-                    <input type="text" id="product-name" placeholder="Product Name" required>
-                    <input type="number" id="product-price" placeholder="Price" required>
-                    <button type="submit">Add Product</button>
-                </form>
-                <table id="products-table">
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Price</th>
-                            <th>Ingredients</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h2>Products Management</h2>
+                <div class="form-container">
+                    <form id="product-form">
+                        <h3>Add/Edit Product</h3>
+                        <input type="text" id="product-name" placeholder="Product Name" required>
+                        <input type="number" id="product-price" placeholder="Price" step="0.01" required>
+                        <textarea id="product-description" placeholder="Description"></textarea>
+                        <button type="submit">Add Product</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table id="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Price</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="product-ingredients-modal" class="modal hidden">
+                    <!-- Will be populated by JavaScript -->
+                </div>
             </div>
             
+            <!-- Orders Tab -->
             <div id="orders" class="tab-content">
-                <h2>Orders</h2>
-                <form id="order-form">
-                    <input type="number" id="order-customer-id" placeholder="Customer ID" required>
-                    <input type="number" id="order-product-id" placeholder="Product ID" required>
-                    <input type="number" id="order-quantity" placeholder="Quantity" required>
-                    <input type="text" id="order-status" placeholder="Order Status" required>
-                    <button type="submit">Add Order</button>
-                </form>
-                <table id="orders-table">
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Order Item</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h2>Orders Management</h2>
+                <div class="form-container">
+                    <form id="order-form">
+                        <h3>Add/Edit Order</h3>
+                        <select id="order-customer-id" required>
+                            <option value="">Select Customer</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                        <div id="order-items-container">
+                            <div class="order-item">
+                                <select class="order-product-id" required>
+                                    <option value="">Select Product</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                                <input type="number" class="order-quantity" placeholder="Quantity" required>
+                                <button type="button" class="remove-item">Remove</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-order-item">Add Item</button>
+                        <select id="order-status" required>
+                            <option value="">Select Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <button type="submit">Add Order</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             
+            <!-- Customers Tab -->
             <div id="customers" class="tab-content">
-                <h2>Customers</h2>
-                <form id="customer-form">
-                    <input type="text" id="customer-name" placeholder="Customer Name" required>
-                    <input type="text" id="customer-contact" placeholder="Contact Number" required>
-                    <input type="text" id="customer-address" placeholder="Address" required>
-                    <button type="submit">Add Customer</button>
-                </form>
-                <table id="customers-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Contact Number</th>
-                            <th>Address</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <h2>Customers Management</h2>
+                <div class="form-container">
+                    <form id="customer-form">
+                        <h3>Add/Edit Customer</h3>
+                        <input type="text" id="customer-name" placeholder="Customer Name" required>
+                        <input type="text" id="customer-contact" placeholder="Contact Number" required>
+                        <input type="email" id="customer-email" placeholder="Email">
+                        <textarea id="customer-address" placeholder="Address" required></textarea>
+                        <button type="submit">Add Customer</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table id="customers-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
             
+            <!-- Purchases Tab -->
+            <div id="purchases" class="tab-content">
+                <h2>Purchases Management</h2>
+                <div class="form-container">
+                    <form id="purchase-form">
+                        <h3>Add Purchase</h3>
+                        <select id="purchase-ingredient-id" required>
+                            <option value="">Select Ingredient</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                        <input type="number" id="purchase-quantity" placeholder="Quantity" required>
+                        <input type="number" id="purchase-unit-cost" placeholder="Unit Cost" step="0.01" required>
+                        <input type="text" id="purchase-supplier" placeholder="Supplier">
+                        <input type="date" id="purchase-date" required>
+                        <button type="submit">Add Purchase</button>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <table id="purchases-table">
+                        <thead>
+                            <tr>
+                                <th>Ingredient</th>
+                                <th>Quantity</th>
+                                <th>Unit Cost</th>
+                                <th>Total Cost</th>
+                                <th>Supplier</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </main>
     </div>
 </body>
