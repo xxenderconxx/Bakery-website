@@ -16,7 +16,7 @@ body {
 
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
+    background-color: #2f3a28;
     color: white;
     display: flex;
     flex-direction: column;
@@ -25,7 +25,7 @@ body {
 }
 
 .sidebar h2 {
-    color: #1abc9c;
+    color: #eda52b;
     text-align: center;
     margin-bottom: 30px;
 }
@@ -42,7 +42,7 @@ body {
 
 .sidebar button {
     width: 100%;
-    background-color: #34495e;
+    background-color: #4f5e46;
     color: white;
     border: none;
     padding: 12px;
@@ -53,7 +53,7 @@ body {
 }
 
 .sidebar button:hover {
-    background-color: #1abc9c;
+    background-color: #dd951a;
     transform: translateX(5px);
 }
 
@@ -61,7 +61,7 @@ body {
     flex-grow: 1;
     padding: 30px;
     overflow-y: auto;
-    background-color: white;
+    background-color: #e3e9de;
 }
 
 .tab-content {
@@ -74,7 +74,7 @@ body {
 
 /* Form styles */
 .form-container {
-    background-color: #f9f9f9;
+    background-color: #edf1e9;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 30px;
@@ -83,7 +83,7 @@ body {
 
 .form-container h3 {
     margin-top: 0;
-    color: #2c3e50;
+    color: #2f3a28;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
 }
@@ -99,7 +99,7 @@ input, select, textarea {
 }
 
 button[type="submit"] {
-    background-color: #1abc9c;
+    background-color: #3d572f;
     color: white;
     border: none;
     padding: 12px 20px;
@@ -110,7 +110,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #16a085;
+    background-color: #333f2b;
 }
 
 /* Table styles */
@@ -132,7 +132,7 @@ table th, table td {
 }
 
 table th {
-    background-color: #2c3e50;
+    background-color: #3f5035;
     color: white;
     position: sticky;
     top: 0;
@@ -148,7 +148,7 @@ table tr:hover {
 
 /* Action buttons */
 .edit-btn {
-    background-color: #3498db;
+    background-color: #72794f;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -157,13 +157,21 @@ table tr:hover {
     margin-right: 5px;
 }
 
+.edit-btn:hover {
+    background-color: #4c8329;
+}
+
 .delete-btn {
-    background-color: #e74c3c;
+    background-color: #c96054;
     color: white;
     border: none;
     padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: rgb(185, 51, 17);
 }
 
 .view-ingredients {
@@ -215,7 +223,7 @@ table tr:hover {
 #logout-btn {
     width: 100%;
     padding: 8px;
-    background-color: #e74c3c;
+    background-color: #ca4d3f;
     color: white;
     border: none;
     border-radius: 4px;
@@ -223,7 +231,7 @@ table tr:hover {
 }
 
 #logout-btn:hover {
-    background-color: #c0392b;
+    background-color: rgb(185, 51, 17);
 }
 
 /* Responsive design */
@@ -305,7 +313,7 @@ table tr:hover {
     .user-info {
         padding: 15px;
         margin-bottom: 20px;
-        background-color: #34495e;
+        background-color: #374230;
         color: white;
         border-radius: 4px;
     }
