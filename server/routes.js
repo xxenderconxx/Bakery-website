@@ -224,14 +224,29 @@ router.get("/ingredients", async (req, res) => {
   }
 });
 
-router.get("/ingredients/:id", async (req, res) => {
+router.put("/ingredients/:id", async (req, res) => {
   try {
-    const db = await connectDB();
-    const ingredient = await db.collection("Ingredients").findOne({ _id: new ObjectId(req.params.id) });
-    if (!ingredient) return res.status(404).send({ error: "Ingredient not found" });
-    res.json(ingredient);
+      const db = await connectDB();
+      const updateData = {};
+      
+      // Only handle direct updates here
+      if (req.body.ingredient_name) updateData.ingredient_name = req.body.ingredient_name;
+      if (req.body.unit_cost) updateData.unit_cost = req.body.unit_cost;
+      if (req.body.available_quantity) updateData.available_quantity = req.body.available_quantity;
+      if (req.body.unit_of_measure) updateData.unit_of_measure = req.body.unit_of_measure;
+
+      const result = await db.collection("Ingredients").updateOne(
+          { _id: new ObjectId(req.params.id) },
+          { $set: updateData }
+      );
+
+      if (result.matchedCount === 0) {
+          return res.status(404).send({ error: "Ingredient not found" });
+      }
+
+      res.json(result);
   } catch (err) {
-    handleError(res, err);
+      handleError(res, err);
   }
 });
 
@@ -701,14 +716,59 @@ router.post("/purchases", async (req, res) => {
   }
 });
 
+// Add this route above your DELETE route
+router.get("/purchases/:id", async (req, res) => {
+  try {
+      const db = await connectDB();
+      const purchase = await db.collection("Purchases").findOne({ 
+          _id: new ObjectId(req.params.id) 
+      });
+      
+      if (!purchase) {
+          return res.status(404).send({ error: "Purchase not found" });
+      }
+      
+      res.json(purchase);
+  } catch (err) {
+      handleError(res, err);
+  }
+});
+
 router.delete("/purchases/:id", async (req, res) => {
   try {
-    const db = await connectDB();
-    const result = await db.collection("Purchases").deleteOne({ _id: new ObjectId(req.params.id) });
-    if (result.deletedCount === 0) return res.status(404).send({ error: "Purchase not found" });
-    res.json(result);
+      const db = await connectDB();
+      
+      // 1. Get the purchase details first
+      const purchase = await db.collection("Purchases").findOne({ 
+          _id: new ObjectId(req.params.id) 
+      });
+      
+      if (!purchase) {
+          return res.status(404).send({ error: "Purchase not found" });
+      }
+
+      // 2. Delete the purchase
+      const result = await db.collection("Purchases").deleteOne({ 
+          _id: new ObjectId(req.params.id) 
+      });
+
+      if (result.deletedCount === 0) {
+          return res.status(404).send({ error: "Purchase not found" });
+      }
+
+      // 3. Subtract the quantity from ingredients (ONLY DO THIS IN BACKEND)
+      await db.collection("Ingredients").updateOne(
+          { _id: new ObjectId(purchase.ingredient_id) },
+          { $inc: { available_quantity: -purchase.quantity } }
+      );
+
+      res.json({
+          ...result,
+          adjustedIngredientId: purchase.ingredient_id,
+          adjustedQuantity: -purchase.quantity
+      });
   } catch (err) {
-    handleError(res, err);
+      handleError(res, err);
   }
 });
 

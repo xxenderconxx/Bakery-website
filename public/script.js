@@ -897,7 +897,7 @@ function renderUsersTable(users) {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
-                    "Accept": "application/json"
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
                 },
                 body: JSON.stringify(purchaseData)
             });
@@ -907,6 +907,7 @@ function renderUsersTable(users) {
             // Reset form and refresh
             e.target.reset();
             fetchPurchases();
+            fetchIngredients(); // Refresh ingredients list too
         } catch (error) {
             showError("Failed to save purchase", error);
         }
@@ -916,9 +917,20 @@ function renderUsersTable(users) {
         if (!confirm("Are you sure you want to delete this purchase?")) return;
         
         try {
-            const response = await fetch(`/api/purchases/${id}`, { method: "DELETE" });
+            // Just make the DELETE request - backend handles the rest
+            const response = await fetch(`/api/purchases/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${localStorage.getItem("token")}`
+                }
+            });
+            
             if (!response.ok) throw new Error(await response.text());
+    
+            // Refresh both lists
             fetchPurchases();
+            fetchIngredients();
+            
         } catch (error) {
             showError("Failed to delete purchase", error);
         }
