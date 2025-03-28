@@ -250,6 +250,23 @@ router.put("/ingredients/:id", async (req, res) => {
   }
 });
 
+router.get("/ingredients/:id", async (req, res) => {
+  try {
+    const db = await connectDB();
+    const ingredient = await db.collection("Ingredients").findOne(
+      { _id: new ObjectId(req.params.id) }
+    );
+    
+    if (!ingredient) {
+      return res.status(404).send({ error: "Ingredient not found" });
+    }
+    
+    res.json(ingredient);
+  } catch (err) {
+    handleError(res, err);
+  }
+});
+
 router.post("/ingredients", async (req, res) => {
   try {
     const db = await connectDB();

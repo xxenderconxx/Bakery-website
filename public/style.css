@@ -78,7 +78,7 @@ body {
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.);
 }
 
 .form-container h3 {
@@ -234,6 +234,173 @@ table tr:hover {
     background-color: rgb(185, 51, 17);
 }
 
+/* Auth Styles */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100vw; /* Viewport width */
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e3e9de 100%);
+}
+
+.auth-container::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(237, 165, 43, 0.08) 0%, transparent 70%);
+    z-index: 0;
+}
+
+.auth-form {
+    background-color: white;
+    padding: 50px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(68, 84, 59, 0.15);
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    border: 1px solid rgba(68, 84, 59, 0.08);
+    transition: all 0.4s ease;
+}
+
+.auth-form:hover {
+    box-shadow: 0 20px 50px rgba(68, 84, 59, 0.2);
+}
+
+/* Header Styles */
+.auth-form h2 {
+    color: #44543b;
+    margin-bottom: 15px;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.auth-form h3 {
+    color: #eda52b;
+    margin-bottom: 35px;
+    font-size: 1.6rem;
+    font-weight: 500;
+    position: relative;
+    display: inline-block;
+}
+
+.auth-form h3::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #eda52b;
+    transition: width 0.3s ease;
+}
+
+.auth-form:hover h3::after {
+    width: 80px;
+}
+
+/* Form Elements */
+.auth-form input {
+    width: 100%;
+    padding: 14px 18px;
+    margin: 15px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background-color: #f9f9f9;
+}
+
+.auth-form input:focus {
+    border-color: #eda52b;
+    box-shadow: 0 0 0 3px rgba(237, 165, 43, 0.15);
+    outline: none;
+    background-color: white;
+}
+
+.auth-form input::placeholder {
+    color: #aaa;
+    font-weight: 300;
+}
+
+.auth-form button {
+    width: 100%;
+    padding: 16px;
+    margin-top: 25px;
+    background-color: #44543b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.auth-form button:hover {
+    background-color: #384530;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(68, 84, 59, 0.3);
+}
+
+/* Footer Links */
+.auth-form p {
+    margin-top: 30px;
+    color: #666;
+    font-size: 15px;
+}
+
+.auth-form a {
+    color: #eda52b;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.auth-form a:hover {
+    color: #d18f1f;
+}
+
+.auth-form a::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #eda52b;
+    transition: width 0.3s ease;
+}
+
+.auth-form a:hover::after {
+    width: 100%;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-form {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -286,12 +453,12 @@ table tr:hover {
     }
 
     .auth-form h2 {
-        color: #2c3e50;
+        color: #44543b;
         margin-bottom: 20px;
     }
 
     .auth-form h3 {
-        color: #1abc9c;
+        color: #eda52b;
         margin-bottom: 20px;
     }
 
@@ -301,12 +468,16 @@ table tr:hover {
     }
 
     .auth-form a {
-        color: #1abc9c;
+        color: #eda52b;
         text-decoration: none;
     }
 
     .auth-form a:hover {
         text-decoration: underline;
+    }
+
+    .username-display{
+        font-weight: bold;
     }
 
     /* User info in sidebar */
@@ -336,4 +507,128 @@ table tr:hover {
     #logout-btn:hover {
         background-color: #c0392b;
     }
+
+    .auth-container {
+        padding: 30px;
+    }
+    
+    .auth-form {
+        padding: 40px;
+        max-width: 420px;
+    }
+    
+    .auth-form h2 {
+        font-size: 2rem;
+    }
+    
+    .auth-form h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Responsive Design (Mobile) */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 20px;
+        background: white;
+    }
+    
+    .auth-form {
+        padding: 30px 25px;
+        box-shadow: none;
+        border: none;
+    }
+    
+    .auth-form h2 {
+        font-size: 1.8rem;
+    }
+    
+    .auth-form h3 {
+        font-size: 1.3rem;
+        margin-bottom: 25px;
+    }
+    
+    .auth-form input {
+        padding: 12px 15px;
+    }
+    
+    .auth-form button {
+        padding: 14px;
+    }
+    
+    .auth-form p {
+        font-size: 14px;
+    }
+}
+
+/* Additional States */
+.loading .auth-form button {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.loading .auth-form button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 14px;
+    margin: -10px 0 10px;
+    text-align: left;
+    display: none;
+    font-weight: 500;
+}
+
+.success-message {
+    color: #2ecc71;
+    font-size: 14px;
+    margin: -10px 0 10px;
+    text-align: center;
+    display: none;
+    font-weight: 500;
+}
+
+/* Keyframes */
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Brand Logo Enhancement */
+.brand-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.brand-logo img {
+    height: 70px;
+    margin-right: 15px;
+}
+
+.brand-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #44543b;
+}
+
+.brand-logo-text span {
+    color: #eda52b;
+    font-weight: 400;
+    font-size: 1.2rem;
+    display: block;
+    margin-top: -5px;
 }
